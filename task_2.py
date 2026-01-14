@@ -65,21 +65,53 @@ for bar, pct in zip(bars, survive_rate["SurvivalPercent"]):
 
 plt.show()
 
+"""The analysis reveals that survival on the Titanic was not random, but strongly shaped by social structure. While the absolute number of survivors is highest among Upper Class passengers, survival probability varies significantly across both passenger class and gender."""
+
+print(titan["Sex"].unique())
+
 gender_count = (
       titan.groupby(["Pclass", "Sex"])["Survived"]
       .sum()
       .reset_index()
-) # grouping Survivor based on "sex" and "Pclass"
+) # Total number of survivors for each Pclass and Sex
 
 total_gender = (
     titan.groupby(["Pclass", "Sex"])
     .size()
     .reset_index(name="Total")
-) # Summarize total
+) # Total number of passengers for each Pclass and Sex
 
 gender_rate = gender_count.merge(total_gender, on=["Pclass", "Sex"])
 gender_rate["SurvivalPercent"] = (
     gender_rate["Survived"] / gender_rate["Total"] * 100
+) # Survive rate per Pclass
 
+plt.figure(figsize=(8,6))
+width = 0.35
+pclass = sorted(gender_rate["Pclass"].unique())
+x = range(len(pclass))
+sex_list = ["male", "female"]
+
+for i, sex in enumerate(sex_list): # Prepare bar for each pclass and sex
+    subset = gender_rate[gender_rate["Sex"] == sex]
+    plt.bar(
+        [pos + i * width for pos in x],
+        subset["SurvivalPercent"],
+        width=width,
+        label=sex
+    )
+
+plt.xticks(
+    [pos + width / 2 for pos in x],
+    ["Upper", "Middle", "Lower"]
 )
+
+plt.xlabel("Passenger Class (Pclass)")
+plt.ylabel("Survival Rate (%)")
+plt.title("Survival Rate by Passenger Class and Sex")
+plt.ylim(0, 100)
+plt.legend(title="Sex")
+plt.show()
+
+"""The analysis reveals that survival on the Titanic was not random, but strongly shaped by social structure. While the absolute number of survivors is highest among Upper Class passengers, survival probability varies significantly across both passenger class and gender."""
 
