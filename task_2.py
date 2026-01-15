@@ -113,5 +113,45 @@ plt.ylim(0, 100)
 plt.legend(title="Sex")
 plt.show()
 
-"""The analysis reveals that survival on the Titanic was not random, but strongly shaped by social structure. While the absolute number of survivors is highest among Upper Class passengers, survival probability varies significantly across both passenger class and gender."""
+"""Females consistently exhibit substantially higher survival rates than males across all classes, with the advantage being most pronounced in higher classes. This pattern indicates that survival outcomes were driven by a combination of gender-based evacuation priorities and class-based access to safety, rather than chance alone.
+
+## **Do passengers traveling alone differ in survival outcomes compared to those  traveling with family?**
+"""
+
+# Create new row stand for passenger traveling alone
+titan["IsAlone"] = ((titan["SibSp"] + titan["Parch"]) == 0).astype(int) # If Si
+
+# Percentage Survival Rate of Passenger that's traveling alone
+alone_rate = (
+    titan.groupby("IsAlone")["Survived"].mean().reset_index()
+)
+alone_rate["SurvivalPercent"] = alone_rate["Survived"] * 100
+
+#
+alone_rate["Group"] = alone_rate["IsAlone"].map({
+    1: "Alone",
+    0: "With Family"
+})
+
+plt.figure(figsize=(7,5))
+bars = plt.bar(
+    alone_rate["Group"],
+    alone_rate["SurvivalPercent"]
+)
+
+plt.xlabel("Passenger Group")
+plt.ylabel("Survival Rate (%)")
+plt.title("Survival Rate: Traveling Alone vs With Family")
+plt.ylim(0, 100)
+
+for bar in bars:
+  height = bar.get_height()
+  plt.text(
+      bar.get_x() + bar.get_width() / 2,
+      height + 2,
+      f"{height:.1f}%",
+      ha="center",
+      va="bottom"
+  )
+plt.show()
 
