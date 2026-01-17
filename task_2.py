@@ -65,9 +65,13 @@ for bar, pct in zip(bars, survive_rate["SurvivalPercent"]):
 
 plt.show()
 
+survive_count
+
 """The analysis reveals that survival on the Titanic was not random, but strongly shaped by social structure. While the absolute number of survivors is highest among Upper Class passengers, survival probability varies significantly across both passenger class and gender."""
 
 print(titan["Sex"].unique())
+
+titan.info()
 
 gender_count = (
       titan.groupby(["Pclass", "Sex"])["Survived"]
@@ -113,6 +117,8 @@ plt.ylim(0, 100)
 plt.legend(title="Sex")
 plt.show()
 
+gender_count
+
 """Females consistently exhibit substantially higher survival rates than males across all classes, with the advantage being most pronounced in higher classes. This pattern indicates that survival outcomes were driven by a combination of gender-based evacuation priorities and class-based access to safety, rather than chance alone.
 
 ## **Do passengers traveling alone differ in survival outcomes compared to those  traveling with family?**
@@ -121,41 +127,47 @@ plt.show()
 # Create new row stand for passenger traveling alone
 titan["IsAlone"] = ((titan["SibSp"] + titan["Parch"]) == 0).astype(int) # If Si
 
-# Percentage Survival Rate of Passenger that's traveling alone
-alone_rate = (
-    titan.groupby("IsAlone")["Survived"].mean().reset_index()
-)
-alone_rate["SurvivalPercent"] = alone_rate["Survived"] * 100
+alone_pass = (
+    titan[titan["Survived"] == 1].groupby("IsAlone").size().reset_index(name="AloneSurv")
+) # Count Survivor from "IsAlone" group
 
-#
+# Total Passenger per group (for calculate survival rate)
+total_pass = (titan.groupby("IsAlone").size().reset_index(name="Total"))
+
+alone_rate = alone_pass.merge(total_pass, on="IsAlone") # Merge survivor count and total passengers
+
+# Percentage Survival Rate of Passenger that's traveling alone
+alone_rate["SurvivalPercent"] = (alone_rate["AloneSurv"] / alone_rate["Total"] * 100)
+
+# Mapping the "IsAlone"category
 alone_rate["Group"] = alone_rate["IsAlone"].map({
     1: "Alone",
     0: "With Family"
 })
 
+alone_rate
+
 plt.figure(figsize=(7,5))
 bars = plt.bar(
     alone_rate["Group"],
-    alone_rate["SurvivalPercent"]
+    alone_rate["AloneSurv"] # alone_rate["SurvivedCount"] -> alone_rate["AloneSurv"]
 )
 
 plt.xlabel("Passenger Group")
-plt.ylabel("Survival Rate (%)")
+plt.ylabel("Number of Survivor")
 plt.title("Survival Rate: Traveling Alone vs With Family")
-plt.ylim(0, 100)
+plt.ylim(0, alone_rate["AloneSurv"].max() * 1.15)
 
-for bar in bars:
+for bar, pct in zip(bars, alone_rate["SurvivalPercent"]):
   height = bar.get_height()
   plt.text(
       bar.get_x() + bar.get_width() / 2,
       height + 2,
-      f"{height:.1f}%",
+      f"{pct:.1f}%",
       ha="center",
       va="bottom"
   )
 plt.show()
 
-# FIx the data that mention at bar (done, there's no error at bar)
-# Simpler the survival outcomes code's
-# change basic bar chart to stacked bar
+"""Passengers traveling with family demonstrate more favorable survival outcomes compared to those traveling alone. Beyond the higher number of survivors, the substantially higher survival rate among passengers with family suggests that travel context may be associated with differences in access, support, or prioritization during evacuation. In contrast, passengers traveling alone show both a lower survivor count and a lower survival proportion, indicating a comparatively more vulnerable position. While this analysis does not establish causality, it highlights family presence as a meaningful factor associated with survival patterns on the Titanic."""
 
