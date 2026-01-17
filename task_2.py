@@ -155,3 +155,7 @@ for bar in bars:
   )
 plt.show()
 
+# FIx the data that mention at bar (done, there's no error at bar)
+# Simpler the survival outcomes code's
+# change basic bar chart to stacked bar
+
