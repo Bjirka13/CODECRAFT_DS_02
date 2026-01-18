@@ -67,7 +67,10 @@ plt.show()
 
 survive_count
 
-"""The analysis reveals that survival on the Titanic was not random, but strongly shaped by social structure. While the absolute number of survivors is highest among Upper Class passengers, survival probability varies significantly across both passenger class and gender."""
+"""The analysis reveals that survival on the Titanic was not random, but strongly shaped by social structure. While the absolute number of survivors is highest among Upper Class passengers, survival probability varies significantly across both passenger class and gender.
+
+## **teks tebal**
+"""
 
 print(titan["Sex"].unique())
 
@@ -100,7 +103,7 @@ for i, sex in enumerate(sex_list): # Prepare bar for each pclass and sex
     subset = gender_rate[gender_rate["Sex"] == sex]
     plt.bar(
         [pos + i * width for pos in x],
-        subset["SurvivalPercent"],
+        subset["Survived"], # subset["SurvivalPercent"] -> subset["Survived"]
         width=width,
         label=sex
     )
@@ -150,7 +153,7 @@ alone_rate
 plt.figure(figsize=(7,5))
 bars = plt.bar(
     alone_rate["Group"],
-    alone_rate["AloneSurv"] # alone_rate["SurvivedCount"] -> alone_rate["AloneSurv"]
+    alone_rate["AloneSurv"]
 )
 
 plt.xlabel("Passenger Group")
@@ -169,5 +172,52 @@ for bar, pct in zip(bars, alone_rate["SurvivalPercent"]):
   )
 plt.show()
 
-"""Passengers traveling with family demonstrate more favorable survival outcomes compared to those traveling alone. Beyond the higher number of survivors, the substantially higher survival rate among passengers with family suggests that travel context may be associated with differences in access, support, or prioritization during evacuation. In contrast, passengers traveling alone show both a lower survivor count and a lower survival proportion, indicating a comparatively more vulnerable position. While this analysis does not establish causality, it highlights family presence as a meaningful factor associated with survival patterns on the Titanic."""
+"""Passengers traveling with family demonstrate more favorable survival outcomes compared to those traveling alone. Beyond the higher number of survivors, the substantially higher survival rate among passengers with family suggests that travel context may be associated with differences in access, support, or prioritization during evacuation. In contrast, passengers traveling alone show both a lower survivor count and a lower survival proportion, indicating a comparatively more vulnerable position. While this analysis does not establish causality, it highlights family presence as a meaningful factor associated with survival patterns on the Titanic.
+
+## **Does passenger class shape the age profile of survivors, or do survivors accross classes share similar age characteristics?**
+"""
+
+import matplotlib.pyplot as plt
+
+# Filter survivors with known age
+age_survivors = titan[
+  (titan["Survived"] == 1) &
+  (titan["Age"].notna())
+]
+
+# Prepare age data per passenger class
+age_data = [
+  age_survivors[age_survivors["Pclass"] == 1]["Age"],
+  age_survivors[age_survivors["Pclass"] == 2]["Age"],
+  age_survivors[age_survivors["Pclass"] == 3]["Age"]
+]
+
+# Plot
+plt.figure(figsize=(10, 8))
+bp = plt.boxplot(age_data, labels=["Upper", "Middle", "Lower"])
+
+# Annotate median age
+medians = [data.median() for data in age_data]
+for i, median in enumerate(medians, start=1):
+    plt.text(
+        i,
+        median + 1.5,
+        f"Median: {median:.0f}",
+        ha="center",
+        fontsize=9,
+        color="black"
+    )
+
+plt.xlabel("Passenger Class (Pclass)")
+plt.ylabel("Age")
+plt.title("Age Distribution of Survivors by Passenger Class")
+
+plt.show()
+
+"""Passengers who survived in higher classes were generally older, while survivors in lower classes were mostly younger. The middle class sits between the two, showing a gradual change in survivor age from upper to lower class. This suggests that survival on the Titanic was associated not only with passenger class, but also with differences in the age profile within each class.
+
+**Note:**
+
+**While survivors in higher passenger classes appear to be older on average compared to those in lower classes, this observation is based only on passengers with known age values. Since a large number of age records are missing, the observed pattern may not fully represent all survivors. Additional analysis would be needed to better understand how missing age data might affect this distribution.**
+"""
 
