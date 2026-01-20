@@ -67,10 +67,7 @@ plt.show()
 
 survive_count
 
-"""The analysis reveals that survival on the Titanic was not random, but strongly shaped by social structure. While the absolute number of survivors is highest among Upper Class passengers, survival probability varies significantly across both passenger class and gender.
-
-## **teks tebal**
-"""
+"""The analysis reveals that survival on the Titanic was not random, but strongly shaped by social structure. While the absolute number of survivors is highest among Upper Class passengers, survival probability varies significantly across both passenger class and gender."""
 
 print(titan["Sex"].unique())
 
@@ -99,14 +96,16 @@ pclass = sorted(gender_rate["Pclass"].unique())
 x = range(len(pclass))
 sex_list = ["male", "female"]
 
+bars_dict = {}
 for i, sex in enumerate(sex_list): # Prepare bar for each pclass and sex
-    subset = gender_rate[gender_rate["Sex"] == sex]
-    plt.bar(
-        [pos + i * width for pos in x],
-        subset["Survived"], # subset["SurvivalPercent"] -> subset["Survived"]
-        width=width,
-        label=sex
-    )
+  subset = gender_rate[gender_rate["Sex"] == sex]
+  bars = plt.bar(
+      [pos + i * width for pos in x],
+      subset["Survived"], # subset["SurvivalPercent"] -> subset["Survived"]
+      width=width,
+      label=sex
+  )
+  bars_dict[sex] = (bars, subset)
 
 plt.xticks(
     [pos + width / 2 for pos in x],
@@ -116,11 +115,25 @@ plt.xticks(
 plt.xlabel("Passenger Class (Pclass)")
 plt.ylabel("Survival Rate (%)")
 plt.title("Survival Rate by Passenger Class and Sex")
-plt.ylim(0, 100)
+max_height = gender_count["Survived"].max()
+plt.ylim(0, max_height * 1.15)
+
+# Annotate Survive Percentage
+for sex, (bars, subset) in bars_dict.items():
+  for bar, pct in zip(bars, subset["SurvivalPercent"]):
+    height = bar.get_height()
+    plt.text(
+        bar.get_x() + bar.get_width() / 2,
+        height + 2,
+        f"{pct:.1f}%",
+        ha="center",
+        va="bottom"
+    )
+
 plt.legend(title="Sex")
 plt.show()
 
-gender_count
+total_gender
 
 """Females consistently exhibit substantially higher survival rates than males across all classes, with the advantage being most pronounced in higher classes. This pattern indicates that survival outcomes were driven by a combination of gender-based evacuation priorities and class-based access to safety, rather than chance alone.
 
@@ -199,14 +212,14 @@ bp = plt.boxplot(age_data, labels=["Upper", "Middle", "Lower"])
 # Annotate median age
 medians = [data.median() for data in age_data]
 for i, median in enumerate(medians, start=1):
-    plt.text(
-        i,
-        median + 1.5,
-        f"Median: {median:.0f}",
-        ha="center",
-        fontsize=9,
-        color="black"
-    )
+  plt.text(
+      i,
+      median + 1.5,
+      f"Median: {median:.0f}",
+      ha="center",
+      fontsize=9,
+      color="black"
+  )
 
 plt.xlabel("Passenger Class (Pclass)")
 plt.ylabel("Age")
